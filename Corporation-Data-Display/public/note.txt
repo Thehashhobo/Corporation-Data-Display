@@ -1,0 +1,34 @@
+What the makeVisible Does
+Filters the Tree:
+
+The makeVisible function ensures that only visible nodes (i.e., nodes that are not collapsed) are included in the tree.
+ This prevents unnecessary rendering of hidden nodes and their subtrees.
+Creates a Fake Root:
+
+The fakeRoot object wraps the visible tree in a single root node. This is necessary because D3's hierarchy and tree 
+layout algorithms require a single root node to function properly.
+Converts to D3 Hierarchy:
+
+The d3.hierarchy function processes the fakeRoot object and its children to create a D3-compatible hierarchy object. 
+This object includes additional properties (e.g., x, y, depth, parent) that are used for layout calculations.
+
+
+Lets start over, I need OrgChart to use d3 hierarchy data to display a top down tree where each node is displayed as a employeeCard, Each node should have a smooth path to its parents. Get rid of collapsed parameter within each node, instead. keep track of visibility by using a visibleNodes array. when orgchart is initialized, add nodes in level 1 and level 2 to visiableNodes array. Implement the code 
+
+function toggle(node) {
+  if (!node.children || node.children.length === 0) {console.log("case 1"); return}
+
+  const childrenAreVisible = node.children.every(child => visibleIds.value.has(child.id))
+
+  if (childrenAreVisible) {
+    // Remove children from visible set (and grandchildren, etc.)
+    node.children.forEach(hideSubtree)
+  } else {
+    // Add children to visible
+    console.log('node called', node)
+    node.children.forEach(child => {
+      visibleIds.value.add(child.id)
+    })
+  }
+  updateLayout()
+}
