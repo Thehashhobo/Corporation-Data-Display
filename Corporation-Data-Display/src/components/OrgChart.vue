@@ -10,14 +10,14 @@
       :nodeHeight="nodeHeight"
     />
     <!-- Draw links between visible parents & children -->
-    <svg class="absolute inset-0 pointer-events-none">
-      <path
+    <svg class="w-full h-full z-900 inset-0 pointer-events-none">
+      <path class="z-999"
         v-for="link in displayedLinks"
         :key="link.target.data.id"
         :d="linkPath(link)"
-        stroke="#CBD5E1"
+        stroke="black"
         fill="none"
-        stroke-width="1.5"
+        stroke-width="2"
       />
     </svg>
   </div>
@@ -44,20 +44,22 @@ const displayedLinks = ref([])
 
 // Chart dimensions
 const width = ref(window.innerWidth)
-// console.log(width)
-
 // // Update width dynamically on window resize
 // window.addEventListener('resize', () => {
 //   width = window.innerWidth
 // })
-const height = ref(800)
+const height = ref(window.innerHeight)
 
 // Layout spacing
 // const nodeGap  = 200
 // const levelGap = 250
 
-const nodeWidth = innerWidth / 9
-const nodeHeight = height.value / 3
+const nodeWidth = width.value / 9.5
+const nodeHeight = height.value / 3.5
+console.log("width", width.value)
+console.log("height", height.value)
+console.log("nodeWidth", nodeWidth)
+console.log("nodeHeight", nodeHeight)
 
 /**
  * Initialize visibleIds to include the CEO (level === 1) and immediate children (level === 2).
@@ -81,7 +83,79 @@ function initVisibleIds() {
 /**
  * Toggle node: if a node's children are currently visible, hide them; otherwise, show them.
  */
+// A global map to track node usage for our LRU cache.
+const usageMap = new Map(); 
+// usageMap[nodeId] = number (higher means used more recently)
+
+// Call this every time a node is toggled, after updateLayout()
+function enforceWidthConstraints() {
+  if (!displayedNodes.value.length) return;
+
+  // 1) Group nodes by "depth" (or "level") for easy width checks.
+  //    The 'depth' property comes from d3.hierarchy; if your data uses 'level',
+  //    adapt accordingly.
+  const nodesByDepth = {};
+  displayedNodes.value.forEach(node => {
+    const depth = node.depth || node.level || 0;
+    if (!nodesByDepth[depth]) nodesByDepth[depth] = [];
+    nodesByDepth[depth].push(node);
+  });
+
+  // 2) For each group (depth/level), check if they fit within the screen width.
+  Object.keys(nodesByDepth).forEach(depth => {
+    const levelNodes = nodesByDepth[depth];
+
+    if (!levelNodes || !levelNodes.length) return;
+
+    // Find the leftmost and rightmost X coords
+    const leftX  = Math.min(...levelNodes.map(n => n.x));
+    const rightX = Math.max(...levelNodes.map(n => n.x + nodeWidth));
+
+    // If they're within the screen, move on
+    const currentWidth = rightX - leftX;
+    if (currentWidth <= width.value) {
+      return;
+    }
+
+    // 3) We exceed the screen width. Hide least-used nodes until it fits.
+    //    - Sort levelNodes by usage (ascending = least used first)
+    //    - Remove from visibleIds until the row fits on screen
+    const sortedByUsage = [...levelNodes].sort((a, b) => {
+      const usageA = usageMap.get(a.id) || 0;
+      const usageB = usageMap.get(b.id) || 0;
+      return usageA - usageB; // ascending order
+    });
+
+    let needsFit = true;
+    while (needsFit && sortedByUsage.length) {
+      const leftMostX  = Math.min(...levelNodes.map(n => n.x));
+      const rightMostX = Math.max(...levelNodes.map(n => n.x + nodeWidth));
+      const rowWidth   = rightMostX - leftMostX;
+
+      if (rowWidth <= width.value) {
+        needsFit = false;
+      } else {
+        // Hide the least-used node
+        const leastUsedNode = sortedByUsage.shift();
+        visibleIds.value.delete(leastUsedNode.id);
+        // Optionally, hide subtree as well
+        // hideSubtree(leastUsedNode); // if you want to remove descendants
+        // Remove it from the in-memory array too
+        const index = levelNodes.findIndex(n => n.id === leastUsedNode.id);
+        if (index !== -1) levelNodes.splice(index, 1);
+      }
+    }
+  });
+
+  // 4) Since we changed visibleIds, recalc the layout again
+  updateLayout();
+}
+
+// Whenever a toggle happens, increment usage for that node and call enforceWidthConstraints
 function toggle(node) {
+  // Mark usage
+  usageMap.set(node.id, (usageMap.get(node.id) || 0) + 1);
+
   // 1. Find the corresponding node in the original (full) tree
   const originalNode = findNodeById(roots[0], node.id);
   if (!originalNode || !originalNode.children || originalNode.children.length === 0) {
@@ -102,10 +176,14 @@ function toggle(node) {
     // Show subtree
     originalNode.children.forEach(child => {
       visibleIds.value.add(child.id);
+      // Mark usage of child
+      usageMap.set(child.id, (usageMap.get(child.id) || 0) + 1);
     });
   }
 
+  // Update the layout, then enforce the width constraints
   updateLayout();
+  enforceWidthConstraints();
 }
 
 /**
@@ -133,9 +211,17 @@ function hideSubtree(node) {
  * Generate a smooth vertical link path using D3.
  */
 function linkPath(link) {
+  // Offset by the height of the node
+
   return d3.linkVertical()
-    .x(d => d.x)
-    .y(d => d.y)(link)
+    .x(d => d.data.x) // Use the adjusted x-coordinate
+    .y(d => {
+      // Offset the source node's y-coordinate by the node height
+      if (d === link.source) {
+        return d.data.y + nodeHeight; // Offset by the height of the node to the Bottom of the parent node
+      }
+      return d.data.y; // Top of the child node
+    })(link);
 }
 
 /**
@@ -158,7 +244,7 @@ function updateLayout() {
   const d3Root = d3.hierarchy(visibleRootNode, d => d.children || []);
   console.log(width, height.value, nodeWidth, nodeHeight)
   d3.tree()
-    .nodeSize([nodeWidth, nodeHeight])(d3Root);
+    .nodeSize([nodeWidth + 15, nodeHeight + 15])(d3Root);
 
   // 3. Set each node’s (x, y) for rendering
   const allNodes = d3Root.descendants();
@@ -168,12 +254,13 @@ function updateLayout() {
     d.data.y = d.y;
   });
 
-  // 4. Build links (parent->child)
+  // 4. Build array of links containing (source\parent: Node -> target\child : Node)
   const allLinks = d3Root.links();
 
   // 5. Update reactive arrays
   displayedNodes.value = allNodes.map(d => d.data);
   displayedLinks.value = allLinks;
+  console.log('displayedLinks', displayedLinks.value)
   height.value = (d3.max(allNodes, d => d.data.y) || 0) + 200;
 }
 

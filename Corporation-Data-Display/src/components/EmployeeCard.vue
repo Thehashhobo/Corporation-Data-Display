@@ -1,9 +1,9 @@
 <template>
   <div
-    class="absolute z-40 rounded-lg shadow bg-white border p-2 cursor-pointer
+    class="absolute z-10 rounded-lg shadow bg-white border p-2 cursor-pointer
            hover:shadow-md transition"
     :style="{
-      left: `${node.x - (nodeWidth / 2)}px`,
+      left: `${node.x - (nodeWidth / 1.8)}px`,
       top: `${node.y}px`,
       width: `${nodeWidth}px`,
       height: `${nodeHeight}px`
@@ -37,6 +37,8 @@ import fallback from '../assets/vue.svg';
 const props = defineProps({
   node: Object,
   onToggle: Function,
+  // handle node width and height dynamically
+  // based on the chart size and number of nodes
   nodeWidth: Number,
   nodeHeight: Number
 });
