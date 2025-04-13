@@ -1,6 +1,20 @@
 <template>
-  <div class="flex p-6 space-y-6 flex-col m-2">
-    <input class=" absolute border-2 justify-start w-55 h-8" type="file" accept=".csv" @change="load" />
+  <div class="flex p-6 space-y-6 flex-co">
+    <div class="fixed top-4 right-4">
+      <label 
+      class="border-2 px-4 py-2 cursor-pointer inline-block" 
+      for="fileInput"
+      >
+      {{ rows.length ? 'File Uploaded' : 'Upload CSV' }}
+      </label>
+      <input 
+      id="fileInput"
+      class="hidden" 
+      type="file" 
+      accept=".csv" 
+      @change="load" 
+      />
+    </div>
     <OrgChart v-if="rows.length" :rows="rows" />
   </div>
 </template>

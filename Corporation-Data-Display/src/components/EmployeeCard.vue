@@ -17,6 +17,7 @@
     />
     <div class="mt-1">
       <p class="font-semibold leading-tight">{{ node.Name }}</p>
+      <p class="leading-tight">{{ node['Employee Id'] }}</p>
       <p class="text-xs text-gray-500 mb-1">{{ node['Job Title'] }}</p>
       <p class="text-sm font-medium">$ {{ node.salary.toLocaleString() }}</p>
       <p class="text-sm font-medium">x: {{ node.x.toFixed(1) }}, y: {{ node.y.toFixed(1) }}</p>
