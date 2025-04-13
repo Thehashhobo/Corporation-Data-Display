@@ -54,9 +54,40 @@ const lruByLevel = {};
 
 // Dynamically calculate node width and height based on the chart size
 // and number of nodes that should fit. This is a simple heuristic; you can adjust it as needed.
-const nodeWidth = width.value / 9.5
-const nodeHeight = height.value / 3.5
+const nodeWidth = ref(0);
+const nodeHeight = ref(0);
 
+function setNodeDimensions() {
+  const resolutions = [
+    { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 4.0 },
+    { width: 1536, height: 864, nodeWidthFactor: 9.5, nodeHeightFactor: 3.5 },
+    { width: 1366, height: 768, nodeWidthFactor: 9.5, nodeHeightFactor: 3.2 },
+    { width: 1280, height: 720, nodeWidthFactor: 10.5, nodeHeightFactor: 3.0 },
+    { width: 1440, height: 900, nodeWidthFactor: 10.5, nodeHeightFactor: 3.7 },
+    { width: 2560, height: 1440, nodeWidthFactor: 10.5, nodeHeightFactor: 5.5 },
+  ];
+
+  const currentResolution = resolutions.find(
+    res => res.width === window.innerWidth && res.height === window.innerHeight
+  );
+
+  if (currentResolution) {
+    nodeWidth.value = window.innerWidth / currentResolution.nodeWidthFactor;
+    nodeHeight.value = window.innerHeight / currentResolution.nodeHeightFactor;
+  } else {
+    // Default fallback
+    nodeWidth.value = window.innerWidth / 9.5;
+    nodeHeight.value = window.innerHeight / 3.2;
+  }
+}
+
+// Call the function initially and on window resize
+setNodeDimensions();
+window.addEventListener('resize', setNodeDimensions);
+
+
+
+// const nodeHeight = height.value / 3.2 
 /**
  * Initialize visibleIds to include the CEO (level === 1) and immediate children (level === 2).
  * This runs once on mounted or whenever rows change.
@@ -201,11 +232,11 @@ function hideSubtree(node) {
  */
 function linkPath(link) {
   // Coordinates of the parent node’s bottom
-  const sx = link.source.data.x;
-  const sy = link.source.data.y + nodeHeight; // move to bottom of parent
+  const sx = link.source.data.x-10;
+  const sy = link.source.data.y + nodeHeight.value; // move to bottom of parent
 
   // Coordinates of the child node’s top
-  const tx = link.target.data.x;
+  const tx = link.target.data.x-10;
   const ty = link.target.data.y;
 
   // Calculate the midpoint for the vertical movement
@@ -237,9 +268,10 @@ function updateLayout() {
 
   // 2. Pass this to d3.hierarchy(), then d3.tree()
   const d3Root = d3.hierarchy(visibleRootNode, d => d.children || []);
-  console.log(width, height.value, nodeWidth, nodeHeight)
+  console.log(width.value, height.value, nodeWidth.value, nodeHeight.value)
   d3.tree()
-    .nodeSize([nodeWidth + 15, nodeHeight + 15])(d3Root);
+    // addition to account for gaps between nodes
+    .nodeSize([nodeWidth.value + 10, nodeHeight.value + 45])(d3Root);
 
   // 3. Set each node’s (x, y) for rendering
   const allNodes = d3Root.descendants();
