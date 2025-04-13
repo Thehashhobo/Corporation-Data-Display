@@ -46,6 +46,7 @@ const displayedLinks = ref([])
 // Chart dimensions
 const width = ref(window.innerWidth)
 const height = ref(window.innerHeight)
+console.log('WIDTH is ', width.value, 'HEIGHT is', height.value)
 
 // node number constraints
 // Key: level/depth number
@@ -59,35 +60,43 @@ const nodeHeight = ref(0);
 
 function setNodeDimensions() {
   const resolutions = [
+    { width: 2560, height: 1440, nodeWidthFactor: 11, nodeHeightFactor: 4.5 },
     { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 4.0 },
-    { width: 1536, height: 864, nodeWidthFactor: 9.5, nodeHeightFactor: 3.5 },
-    { width: 1366, height: 768, nodeWidthFactor: 9.5, nodeHeightFactor: 3.2 },
-    { width: 1280, height: 720, nodeWidthFactor: 10.5, nodeHeightFactor: 3.0 },
-    { width: 1440, height: 900, nodeWidthFactor: 10.5, nodeHeightFactor: 3.7 },
-    { width: 2560, height: 1440, nodeWidthFactor: 10.5, nodeHeightFactor: 5.5 },
+    { width: 1440, height: 900, nodeWidthFactor: 9.5, nodeHeightFactor: 3.7 },
+    { width: 1536, height: 864, nodeWidthFactor: 8.5, nodeHeightFactor: 3.0 },
+    { width: 1366, height: 768, nodeWidthFactor: 8.5, nodeHeightFactor: 2.8 },
+    { width: 1280, height: 720, nodeWidthFactor: 6.5, nodeHeightFactor: 2.7 },
   ];
 
-  const currentResolution = resolutions.find(
-    res => res.width === window.innerWidth && res.height === window.innerHeight
-  );
+  const viewportWidth = width.value;
+  const viewportHeight = height.value;
 
-  if (currentResolution) {
-    nodeWidth.value = window.innerWidth / currentResolution.nodeWidthFactor;
-    nodeHeight.value = window.innerHeight / currentResolution.nodeHeightFactor;
-  } else {
-    // Default fallback
-    nodeWidth.value = window.innerWidth / 9.5;
-    nodeHeight.value = window.innerHeight / 3.2;
-  }
+  console.log('width is ', viewportWidth, 'height is', viewportHeight)
+  // Find the closest resolution
+  const closestResolution = resolutions.reduce((closest, current) => {
+    const closestDiff =
+      Math.abs(closest.width - viewportWidth) +
+      Math.abs(closest.height - viewportHeight);
+    const currentDiff =
+      Math.abs(current.width - viewportWidth) +
+      Math.abs(current.height - viewportHeight);
+
+    return currentDiff < closestDiff ? current : closest;
+  });
+  console.log('closestResolution', closestResolution)
+
+  nodeWidth.value = viewportWidth / closestResolution.nodeWidthFactor;
+  nodeHeight.value = viewportHeight / closestResolution.nodeHeightFactor;
 }
 
-// Call the function initially and on window resize
-setNodeDimensions();
-window.addEventListener('resize', setNodeDimensions);
+window.addEventListener('resize', () => {
+  width.value = window.innerWidth
+  height.value = window.innerHeight
+  setNodeDimensions();
+  updateLayout();
+});
 
 
-
-// const nodeHeight = height.value / 3.2 
 /**
  * Initialize visibleIds to include the CEO (level === 1) and immediate children (level === 2).
  * This runs once on mounted or whenever rows change.
@@ -114,7 +123,6 @@ function initVisibleIds() {
  * Toggle node: if a node's children are currently visible, hide them; otherwise, show them.
  */
 function toggle(node) {
-  console.log("All LRUs:", lruByLevel);
   // 1. Find the corresponding node in the original tree
   const originalNode = findNodeById(roots[0], node.id);
   if (!originalNode || !originalNode.children || originalNode.children.length === 0) {
@@ -148,7 +156,8 @@ function toggle(node) {
 
     // Create a new LRU for this level if it doesn't exist
     if (!lruByLevel[lv]) {
-      lruByLevel[lv] = new LRUCache(2); // capacity = 2
+      // capacity = 2 (Can be adjusted, 2 creates a have some buggy edge cases when tree is wide,  1 is safe)
+      lruByLevel[lv] = new LRUCache(2); 
     }
 
     // Evict the least-used node if we exceed capacity
@@ -160,6 +169,7 @@ function toggle(node) {
         // Now remove from deeper LRU caches
         removeNodeAndDescendantsFromLRU(evictedNode, lv);
         hideSubtree(evictedNode); 
+        visibleIds.value.add(evictedNode.id);
       }
     }
     // Put this node in the LRU 
@@ -167,7 +177,6 @@ function toggle(node) {
   }
 
   // Recompute layout and enforce any additional constraints you might want
-  console.log("LRU", lruByLevel)
   updateLayout();
   // enforceWidthConstraints(); // optional if you still want row-based constraints
 }
@@ -180,7 +189,7 @@ function removeNodeAndDescendantsFromLRU(node, level) {
   // Recursively remove children from the LRU at the next level
   if (node.children && visibleIds.value.has(node.id)) { 
     node.children.forEach(child => {
-      console.log('Removing children', child.id,' at level', level)
+      // console.log('Removing children', child.id,' at level', level)
       removeNodeAndDescendantsFromLRU(child, parseInt(level) + 1);
     });
   }
@@ -264,11 +273,9 @@ function updateLayout() {
     displayedLinks.value = [];
     return;
   }
-  console.log('visibleRootNode', visibleRootNode)
 
   // 2. Pass this to d3.hierarchy(), then d3.tree()
   const d3Root = d3.hierarchy(visibleRootNode, d => d.children || []);
-  console.log(width.value, height.value, nodeWidth.value, nodeHeight.value)
   d3.tree()
     // addition to account for gaps between nodes
     .nodeSize([nodeWidth.value + 10, nodeHeight.value + 45])(d3Root);
@@ -287,8 +294,7 @@ function updateLayout() {
   // 5. Update reactive arrays
   displayedNodes.value = allNodes.map(d => d.data);
   displayedLinks.value = allLinks;
-  // console.log('displayedLinks', displayedLinks.value)
-  height.value = (d3.max(allNodes, d => d.data.y) || 0) + 200;
+  // height.value = (d3.max(allNodes, d => d.data.y) || 0) + 200;
 }
 
 /**
@@ -328,6 +334,7 @@ watch(
 
 // Ensure initial layout is computed
 onMounted(() => {
+  setNodeDimensions();
   initVisibleIds()
   updateLayout()
 })

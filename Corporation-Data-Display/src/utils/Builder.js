@@ -1,4 +1,7 @@
+
 // Build a tree & memo‑calculate cost metrics
+
+import randomColor from 'randomcolor';
 export function buildTree(rows) {
   const idMap = {};
   rows.forEach(r => {
@@ -11,7 +14,6 @@ export function buildTree(rows) {
   });
 
   const roots = [];
-
   rows.forEach(r => {
     if (r.managerId && idMap[r.managerId]) {
       idMap[r.managerId].children.push(r); // match child to parent
@@ -40,7 +42,7 @@ export function buildTree(rows) {
 
       // Accumulate cost metrics
       ic   += sub.ic;
-      mc   += sub.mgmt;
+      mc   += sub.mc;
 
       // Accumulate new fields
       // Each child is one descendant, plus all the child's descendants
@@ -77,7 +79,7 @@ export function buildTree(rows) {
     // Create output object
     const out = {
       ic,          // total IC cost
-      mgmt: mc,    // total management cost
+      mc,    // total management cost
       total,       // sum of all salaries
       ratio,       // management cost ratio
       descendantCount,
@@ -94,8 +96,26 @@ export function buildTree(rows) {
     return out;
   }
 
-  // Calculate metrics for each root
-  roots.forEach(calc);
-  console.log("root:", roots);
+  // Assign colors so children share their ancestor's color
+  function assignColor(node, parentColor) {
+    // Root node gets its own random color
+    if (!parentColor) {
+      node.color = randomColor({luminosity: 'light'});
+    } else {
+      node.color = parentColor;
+    }
+    node.children.forEach(child => assignColor(child, node.color));
+  }
+
+  // For root: calculate cost metrics recursively
+  roots.forEach(root => {
+    // for each child of root node, assign color recursively
+    roots[0].children.forEach(child => {
+      assignColor(child, null);
+    }
+    )   
+    calc(root);
+  });
+
   return roots;
 }
