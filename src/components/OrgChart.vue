@@ -20,10 +20,6 @@
       stroke-width="1"
       />
     </svg>
-    <!-- <div class="absolute top-0 left-100 bg-white text-black p-2 z-1000">
-      <p>Width: {{ width }}</p>
-      <p>Height: {{ height }}</p>
-    </div> -->
   </div>
 </template>
 

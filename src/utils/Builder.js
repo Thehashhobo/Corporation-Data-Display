@@ -79,7 +79,7 @@ export function buildTree(rows) {
     // Create output object
     const out = {
       ic,          // total IC cost
-      mc,    // total management cost
+      mc,          // total management cost
       total,       // sum of all salaries
       ratio,       // management cost ratio
       descendantCount,
