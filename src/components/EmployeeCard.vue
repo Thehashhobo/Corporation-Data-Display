@@ -26,19 +26,19 @@
 
       <!-- Salary / Cost Fields in a flex column layout -->
       <div class="flex flex-col text-xs mb-2 items-center gap-1">
-        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+        <div class="flex gap-1 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Manager Cost:</span>
           <span>{{ millify(node.mc, { precision: 2 }) }}</span>
         </div>
-        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+        <div class="flex gap-1 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">IC Cost:</span>
           <span>{{ millify(node.ic, { precision: 2 }) }}</span>
         </div>
-        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+        <div class="flex gap-1 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Total Cost:</span>
           <span>{{ millify(node.total, { precision: 2 }) }}</span>
         </div>
-        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+        <div class="flex gap-1 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Cost Ratio:</span>
           <span>{{ millify(node.ratio, { precision: 2 }) }}</span>
         </div>
@@ -46,15 +46,15 @@
 
       <!-- Additional HR fields also in a flex column layout -->
       <div class="flex flex-col text-xs items-center gap-1">
-        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+        <div class="flex gap-1 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Descendants Count:</span>
           <span>{{ node.descendantCount }}</span>
         </div>
-        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+        <div class="flex gap-1 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Manager Count:</span>
           <span>{{ node.nonLeafDescendants }}</span>
         </div>
-        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+        <div class="flex gap-1 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Manager Ratio:</span>
           <span>{{ millify(node.nonLeafDescendants/node.descendantCount, { precision: 2 }) }}</span>
         </div>
