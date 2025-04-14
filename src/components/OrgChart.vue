@@ -66,9 +66,11 @@ function setNodeDimensions() {
     { width: 2330, height: 1220, nodeWidthFactor: 11.5, nodeHeightFactor: 5.3 },
     { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 3.7 },
     { width: 1440, height: 900, nodeWidthFactor: 8.5, nodeHeightFactor: 3.2 },
-    { width: 1536, height: 864, nodeWidthFactor: 7.5, nodeHeightFactor: 2.6 },
-    { width: 1366, height: 768, nodeWidthFactor: 6.5, nodeHeightFactor: 1.9 },
+    { width: 1536, height: 864, nodeWidthFactor: 7.5, nodeHeightFactor: 2.8 },
+    { width: 1366, height: 768, nodeWidthFactor: 6.5, nodeHeightFactor: 2.4 },
     { width: 1280, height: 720, nodeWidthFactor: 6.0, nodeHeightFactor: 1.7 },
+    { width: 1100, height: 660, nodeWidthFactor: 5.5, nodeHeightFactor: 1.5 },
+    { width: 962, height: 601, nodeWidthFactor: 5.0, nodeHeightFactor: 1.2 }, 
   ];
 
   const viewportWidth = width.value;
