@@ -22,7 +22,7 @@
     <!-- Name & Title remain unchanged -->
     <div class="mt-8 text-center">
       <p class="font-bold leading-tight">{{ node.Name }}</p>
-      <p class="text-x text-gray-500 mb-1">{{ node['Job Title'] }}</p>
+      <p class="text-xs text-gray-500 mb-1">{{ node['Job Title'] }}</p>
 
       <!-- Salary / Cost Fields in a flex column layout -->
       <div class="flex flex-col text-xs mb-2 items-center gap-1">
@@ -53,6 +53,10 @@
         <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Manager Count:</span>
           <span>{{ node.nonLeafDescendants }}</span>
+        </div>
+        <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
+          <span class="font-semibold">Manager Ratio:</span>
+          <span>{{ millify(node.nonLeafDescendants/node.descendantCount, { precision: 2 }) }}</span>
         </div>
         <div class="flex gap-2 p-0.3 pl-1.5 pr-1.5 rounded-2xl border-b-0 bg-black/20">
           <span class="font-semibold">Reporting Layers:</span>

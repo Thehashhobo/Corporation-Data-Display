@@ -10,7 +10,7 @@
       :nodeHeight="nodeHeight"
     />
     <!-- Draw links between visible parents & children -->
-    <svg :style="{ width: (width*2) + 'px', height: '100%' }" class="h-full z-900 inset-0 pointer-events-none">
+    <svg :style="{ width: (width*2) + 'px', height: svgHeight + 'px'}" class="h-full z-900 inset-0 pointer-events-none">
       <path class="z-999"
       v-for="link in displayedLinks"
       :key="link.target.data.id"
@@ -20,6 +20,10 @@
       stroke-width="1"
       />
     </svg>
+    <!-- <div class="absolute top-0 left-100 bg-white text-black p-2 z-1000">
+      <p>Width: {{ width }}</p>
+      <p>Height: {{ height }}</p>
+    </div> -->
   </div>
 </template>
 
@@ -46,6 +50,8 @@ const displayedLinks = ref([])
 // Chart dimensions
 const width = ref(window.innerWidth)
 const height = ref(window.innerHeight)
+// Dynamic SVG height .
+const svgHeight = ref(0)
 console.log('WIDTH is ', width.value, 'HEIGHT is', height.value)
 
 // node number constraints
@@ -60,12 +66,12 @@ const nodeHeight = ref(0);
 
 function setNodeDimensions() {
   const resolutions = [
-    { width: 2560, height: 1440, nodeWidthFactor: 11, nodeHeightFactor: 4.5 },
-    { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 4.0 },
-    { width: 1440, height: 900, nodeWidthFactor: 9.5, nodeHeightFactor: 3.7 },
-    { width: 1536, height: 864, nodeWidthFactor: 8.5, nodeHeightFactor: 3.0 },
-    { width: 1366, height: 768, nodeWidthFactor: 8.5, nodeHeightFactor: 2.8 },
-    { width: 1280, height: 720, nodeWidthFactor: 6.5, nodeHeightFactor: 2.7 },
+    { width: 2560, height: 1440, nodeWidthFactor: 11, nodeHeightFactor: 4.3 },
+    { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 3.8 },
+    { width: 1440, height: 900, nodeWidthFactor: 9.5, nodeHeightFactor: 3.5 },
+    { width: 1536, height: 864, nodeWidthFactor: 8.5, nodeHeightFactor: 2.6 },
+    { width: 1366, height: 768, nodeWidthFactor: 8.5, nodeHeightFactor: 2.5 },
+    { width: 1280, height: 720, nodeWidthFactor: 6.5, nodeHeightFactor: 2.4 },
   ];
 
   const viewportWidth = width.value;
@@ -295,6 +301,9 @@ function updateLayout() {
   displayedNodes.value = allNodes.map(d => d.data);
   displayedLinks.value = allLinks;
   // height.value = (d3.max(allNodes, d => d.data.y) || 0) + 200;
+  const maxY = d3.max(allNodes, d => d.data.y) || 0;
+  // Add some extra padding so the links won’t clip at the bottom
+  svgHeight.value = maxY + 200;
 }
 
 /**

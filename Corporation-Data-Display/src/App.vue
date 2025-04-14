@@ -31,7 +31,8 @@
             <!-- Modal header -->
             <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-700">
                 <h3 class="text-xl font-semibold text-white">
-                    Design Decisions
+                  How the Org Chart Works
+
                 </h3>
                 <button @click="showModal = false" type="button" class="text-gray-400 bg-transparent hover:bg-gray-700 hover:text-white rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -43,10 +44,21 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 space-y-4">
                 <p class="text-base leading-relaxed text-white">
-                    With less than a month to go before the European Union enacts new consumer privacy laws for its citizens, companies around the world are updating their terms of service agreements to comply.
+                  This org chart manages which nodes are visible using a visibleIds array. Each time the visibility changes, 
+                  the D3 tree layout is recalculated to ensure accurate positioning based on only the currently expanded nodes.
+
+
                 </p>
                 <p class="text-base leading-relaxed text-white">
-                    The European Union’s General Data Protection Regulation (G.D.P.R.) goes into effect on May 25 and is meant to ensure a common set of data rights in the European Union. It requires organizations to notify users as soon as possible of high-risk data breaches that could personally affect them.
+                  To keep the chart readable and prevent nodes from rendering outside the viewport, expansion is limited to two 
+                  nodes per level. When a third node is expanded, the least recently viewed node at that level is automatically 
+                  collapsed using an LRU (Least Recently Used) strategy. In scenarios with many children, some edge cases may 
+                  still cause the layout to overflow. For stricter control, you can limit expansion to one node per level by 
+                  adjusting the cache size in the code (OrgChart, line 164).
+
+
+
+
                 </p>
             </div>
             <!-- Modal footer -->
