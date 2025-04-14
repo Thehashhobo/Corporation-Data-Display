@@ -58,11 +58,11 @@
                   nodes per level. When a third node is expanded, the least recently viewed node at that level is automatically 
                   collapsed using an LRU (Least Recently Used) strategy. In scenarios with many children, some edge cases may 
                   still cause the layout to overflow. For stricter control, you can limit expansion to one node per level by 
-                  adjusting the cache size in the code (OrgChart, line 164).
+                  adjusting the cache size in the code (OrgChart, line 160).
                 </p>
 
                 <p class="text-base leading-relaxed text-white">
-                  There is a current issue where the fixed positioning of buttons and auto-centering logic (see OrgChart, line 344)
+                  There is a current issue where the fixed positioning of buttons and auto-centering logic (OrgChart, line 341)
                    does not function correctly within Chrome DevTools' device emulation mode. This appears to be related to how the
                     emulated viewport handles layout and rendering. However, the behavior works as expected on actual 
                     physical devices, suggesting the issue is isolated to the emulation environment.
