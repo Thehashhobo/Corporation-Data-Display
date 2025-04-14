@@ -1,5 +1,6 @@
 <template>
-  <div class="flex p-6 space-y-6 flex-co">
+  <div class="p-6 space-y-6">
+    <!-- The fixed position does not work in dev tool, potentially due to device emulation, However, it works in the real device.  -->
     <div class="fixed top-4 right-4 ">
       <label 
       class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer inline-block" 
@@ -19,7 +20,8 @@
     
 
 <!-- Modal toggle -->
-<button @click="showModal = true" class="z-999 fixed top-4 left-4 block text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800" type="button">
+ <!-- The fixed position does not work in dev tool, potentially due to device emulation, However, it works in the real device.  -->
+<button @click="showModal = true" class="fixed z-999 top-4 left-4 block text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800" type="button">
   Read me! 
 </button>
 
@@ -55,11 +57,20 @@
                   collapsed using an LRU (Least Recently Used) strategy. In scenarios with many children, some edge cases may 
                   still cause the layout to overflow. For stricter control, you can limit expansion to one node per level by 
                   adjusting the cache size in the code (OrgChart, line 164).
-
-
-
-
                 </p>
+
+                <p class="text-base leading-relaxed text-white">
+                  There is a current issue where the fixed positioning of buttons and auto-centering logic (see OrgChart, line 344)
+                   does not function correctly within Chrome DevTools' device emulation mode. This appears to be related to how the
+                    emulated viewport handles layout and rendering. However, the behavior works as expected on actual 
+                    physical devices, suggesting the issue is isolated to the emulation environment.
+                </p>
+                <p class="text-base leading-relaxed text-white">
+                  The responsive design is optimized for desktop and tablet devices. Mobile support is intentionally
+                   excluded, as mobile usage is considered an unlikely use case for this application.
+                </p>
+
+
             </div>
             <!-- Modal footer -->
             <div class="flex items-center p-4 md:p-5 border-t border-gray-700 rounded-b">

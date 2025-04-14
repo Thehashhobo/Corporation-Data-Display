@@ -1,5 +1,5 @@
 <template>
-  <div :style="{ width: (width*2) + 'px', height: height + 'px' }" class="relative">
+  <div :style="{ width: (width*2) + 'px', height: height + 'px' }" class="relative ">
     <!-- Render EmployeeCards for any node whose ID is in visibleIds -->
     <EmployeeCard
       v-for="node in displayedNodes"
@@ -29,7 +29,7 @@
 
 <script setup>
 import * as d3 from 'd3'
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import EmployeeCard from './EmployeeCard.vue'
 import { buildTree } from '../utils/Builder.js'
 import LRUCache from '../utils/LRUCache.js';
@@ -52,7 +52,7 @@ const width = ref(window.innerWidth)
 const height = ref(window.innerHeight)
 // Dynamic SVG height .
 const svgHeight = ref(0)
-console.log('WIDTH is ', width.value, 'HEIGHT is', height.value)
+// console.log('WIDTH is ', width.value, 'HEIGHT is', height.value)
 
 // node number constraints
 // Key: level/depth number
@@ -66,18 +66,18 @@ const nodeHeight = ref(0);
 
 function setNodeDimensions() {
   const resolutions = [
-    { width: 2560, height: 1440, nodeWidthFactor: 11, nodeHeightFactor: 4.3 },
-    { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 3.8 },
-    { width: 1440, height: 900, nodeWidthFactor: 9.5, nodeHeightFactor: 3.5 },
-    { width: 1536, height: 864, nodeWidthFactor: 8.5, nodeHeightFactor: 2.6 },
-    { width: 1366, height: 768, nodeWidthFactor: 8.5, nodeHeightFactor: 2.5 },
-    { width: 1280, height: 720, nodeWidthFactor: 6.5, nodeHeightFactor: 2.4 },
+    { width: 2560, height: 1440, nodeWidthFactor: 11, nodeHeightFactor: 4.2 },
+    { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 3.7 },
+    { width: 1440, height: 900, nodeWidthFactor: 9.5, nodeHeightFactor: 3.4 },
+    { width: 1536, height: 864, nodeWidthFactor: 8.5, nodeHeightFactor: 2.5 },
+    { width: 1366, height: 768, nodeWidthFactor: 8.5, nodeHeightFactor: 2.4 },
+    { width: 1280, height: 720, nodeWidthFactor: 6.5, nodeHeightFactor: 2.3 },
   ];
 
   const viewportWidth = width.value;
   const viewportHeight = height.value;
 
-  console.log('width is ', viewportWidth, 'height is', viewportHeight)
+  // console.log('width is ', viewportWidth, 'height is', viewportHeight)
   // Find the closest resolution
   const closestResolution = resolutions.reduce((closest, current) => {
     const closestDiff =
@@ -89,7 +89,7 @@ function setNodeDimensions() {
 
     return currentDiff < closestDiff ? current : closest;
   });
-  console.log('closestResolution', closestResolution)
+  // console.log('closestResolution', closestResolution)
 
   nodeWidth.value = viewportWidth / closestResolution.nodeWidthFactor;
   nodeHeight.value = viewportHeight / closestResolution.nodeHeightFactor;
@@ -119,10 +119,6 @@ function initVisibleIds() {
       visibleIds.value.add(child.id)
     
   })
-  window.scrollTo({
-    left: width.value/2, // The horizontal position to scroll to
-    behavior: 'smooth', 
-  });
 }
 
 /**
@@ -270,6 +266,7 @@ function linkPath(link) {
  * It also computes the links (parent->child) for node pairs that are both visible.
  */
 function updateLayout() {
+  // console.log("WH in updateLayout", window.innerWidth, window.innerHeight)
   if (!roots[0]) return;
 
   // 1. Build a "visible-only" copy of the root
@@ -304,6 +301,7 @@ function updateLayout() {
   const maxY = d3.max(allNodes, d => d.data.y) || 0;
   // Add some extra padding so the links won’t clip at the bottom
   svgHeight.value = maxY + 200;
+  // console.log("Test", document.documentElement.scrollWidth, window.innerWidth);
 }
 
 /**
@@ -336,17 +334,23 @@ watch(
     // Rebuild data
     roots.splice(0, roots.length, ...buildTree(props.rows))
     initVisibleIds()
+    setNodeDimensions();
     updateLayout()
+    // console.log(document.documentElement.scrollWidth, window.innerWidth);
+
+    // Delay the scroll call until the next DOM update
+    // This does not work in dev tool, potentially due to device emulation, However, it works in the real device. 
+    nextTick(() => {
+      window.scrollTo({
+        top: 0,
+        left: width.value / 2,
+        behavior: 'smooth',
+      });
+    });
   },
   { immediate: true }
 )
 
-// Ensure initial layout is computed
-onMounted(() => {
-  setNodeDimensions();
-  initVisibleIds()
-  updateLayout()
-})
 </script>
 
 <style scoped>
