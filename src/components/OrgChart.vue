@@ -1,5 +1,5 @@
 <template>
-  <div :style="{ width: (width*2) + 'px', height: height + 'px' }" class="relative ">
+  <div :style="{ width: (width*2) + 'px', height: height + 'px' }" class="relative mt-8 z-1000">
     <!-- Render EmployeeCards for any node whose ID is in visibleIds -->
     <EmployeeCard
       v-for="node in displayedNodes"
@@ -62,7 +62,8 @@ const nodeHeight = ref(0);
 
 function setNodeDimensions() {
   const resolutions = [
-    { width: 2560, height: 1440, nodeWidthFactor: 10.5, nodeHeightFactor: 4.2 },
+    { width: 2560, height: 1440, nodeWidthFactor: 15.5, nodeHeightFactor: 7.5 },
+    { width: 2330, height: 1220, nodeWidthFactor: 11.5, nodeHeightFactor: 5.3 },
     { width: 1920, height: 1080, nodeWidthFactor: 9.5, nodeHeightFactor: 3.7 },
     { width: 1440, height: 900, nodeWidthFactor: 8.5, nodeHeightFactor: 3.2 },
     { width: 1536, height: 864, nodeWidthFactor: 7.5, nodeHeightFactor: 2.6 },
@@ -121,6 +122,7 @@ function initVisibleIds() {
  * Toggle node: if a node's children are currently visible, hide them; otherwise, show them.
  */
 function toggle(node) {
+  console.log("Toggle node", node)
   // 1. Find the corresponding node in the original tree
   const originalNode = findNodeById(roots[0], node.id);
   if (!originalNode || !originalNode.children || originalNode.children.length === 0) {
