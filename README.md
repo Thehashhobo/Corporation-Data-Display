@@ -34,7 +34,6 @@ To prevent visual clutter and overflow:
 - **Vue 3 (Composition API)**
 - **Tailwind CSS**
 - **D3.js** (`d3-hierarchy`)
-- **CSV Parsing** via browser `FileReader`
 
 ---
 
@@ -44,7 +43,7 @@ To run the project locally:
 
 ```bash
 # Clone the project
-git clone <repo-url>
+git clone https://github.com/Thehashhobo/Corporation-Data-Display.git
 
 # Install dependencies
 npm install
