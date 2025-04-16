@@ -30,6 +30,9 @@ import EmployeeCard from './EmployeeCard.vue'
 import { buildTree } from '../utils/Builder.js'
 import LRUCache from '../utils/LRUCache.js';
 
+
+
+
 // Accepts CSV or JSON rows of employee data
 const props = defineProps({ rows: Array })
 
@@ -59,6 +62,9 @@ const lruByLevel = {};
 // and number of nodes that should fit. This is a simple heuristic; you can adjust it as needed.
 const nodeWidth = ref(0);
 const nodeHeight = ref(0);
+
+const CALIBRATION_DPR = 1.5; // Adjust this value to calibrate the node size based on device pixel ratio
+const currentDPR = window.devicePixelRatio || 1;
 
 function setNodeDimensions() {
   const resolutions = [
@@ -90,8 +96,16 @@ function setNodeDimensions() {
   });
   // console.log('closestResolution', closestResolution)
 
-  nodeWidth.value = viewportWidth / closestResolution.nodeWidthFactor;
-  nodeHeight.value = viewportHeight / closestResolution.nodeHeightFactor;
+  let baseNodeWidth = viewportWidth / closestResolution.nodeWidthFactor;
+  let baseNodeHeight = viewportHeight / closestResolution.nodeHeightFactor;
+
+  // Adjust for the actual device pixel ratio
+  // If your references are designed for 1.5 DPR, scale by (1.5 / currentDPR)
+  // so the physical size looks the same on all screens.
+  const dprFactor = CALIBRATION_DPR / currentDPR;
+
+  nodeWidth.value = baseNodeWidth * dprFactor;
+  nodeHeight.value = baseNodeHeight * dprFactor;
 }
 
 window.addEventListener('resize', () => {
@@ -124,7 +138,7 @@ function initVisibleIds() {
  * Toggle node: if a node's children are currently visible, hide them; otherwise, show them.
  */
 function toggle(node) {
-  console.log("Toggle node", node)
+  // console.log("Toggle node", node)
   // 1. Find the corresponding node in the original tree
   const originalNode = findNodeById(roots[0], node.id);
   if (!originalNode || !originalNode.children || originalNode.children.length === 0) {
