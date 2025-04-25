@@ -38,6 +38,8 @@ To prevent visual clutter and overflow:
 ---
 
 ## 🛠️ Getting Started
+To run the project remotely go to:
+https://codesandbox.io/p/github/Thehashhobo/Corporation-Data-Display/main?import=true
 
 To run the project locally:
 
